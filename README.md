@@ -44,11 +44,14 @@ This is the official web application for the **Central Library of Jawaharlal Neh
 
 ## Architecture
 ```
-React Frontend (Vite)
-       ↓
-Express.js API (Node.js)
-       ↓
-MongoDB (Database)
+      React Frontend (Main App)           React Frontend (Admin Panel)
+                 (Port 5173)                   (Port 5174)
+                       ↘                           ↙
+                           Express.js API (Backend)
+                                 (Port 5000)
+                                      ↓
+                             MongoDB (Database)
+                               (Local: 27017)
 ```
 
 ## Quick Start
@@ -59,113 +62,64 @@ MongoDB (Database)
 
 ### Installation
 ```bash
-git clone https://github.com/saiprasadzampalwad/LIBRARY-JNEC-REACT
-cd LIBRARY-JNEC-REACT
+git clone https://github.com/acecoder-0/JNEC-Library-Official-Page-Mongodb
+cd JNEC-Library-Official-Page-Mongodb
+npm install
+cd admin
 npm install
 ```
 
-### Backend Setup
-1. **Start MongoDB**: Ensure MongoDB is running on `mongodb://127.0.0.1:27017`
-   - Or update connection string in `config/mongo.js` for MongoDB Atlas
+### Tri-Terminal Setup
 
-2. **Run Backend Server** (Terminal 1):
+To run the complete system correctly, you need three separate terminals running simultaneously.
+
+1. **Backend Server** (Terminal 1)
 ```bash
 node server.js
 ```
-Output: `Server running on port 5000 🚀`
+*Starts the Express API serving MongoDB data and locally uploaded PDFs on port 5000.*
 
-### Frontend Development (Terminal 2)
+2. **Main Library Website** (Terminal 2)
 ```bash
 npm run dev
 ```
-Opens at `http://localhost:5173`
+*Starts the Vite React server on port 5173. Visit `http://localhost:5173` to browse the library.*
 
-### Testing Feedback Form
-1. Open `http://localhost:5173/feedback`
-2. Fill and submit the form
-3. Check MongoDB Compass to verify data in `jnec_library.feedbacks` collection
-
-### Build for Production
+3. **Admin Panel** (Terminal 3)
 ```bash
-npm run build
-npm run preview
+cd admin
+npm run dev
 ```
+*Starts the secure standalone control panel on port 5174. Visit `http://localhost:5174` to manage dynamic data!*
 
 ## Project Structure
 ```
-LIBRARY-JNEC-REACT/
-├── src/
-│   ├── components/     # Header, Footer, NavbarComp, Sidebar, Slider, etc.
-│   ├── pages/          # AboutPage, EResourcesPage, FAQPage, FeedbackPage, etc.
-│   ├── App.jsx         # Routing & Layout
-│   ├── main.jsx        # Entry point
-│   └── App.css         # Global styles
-├── public/             # Images (logos, gallery photos)
-├── config/
-│   └── mongo.js        # MongoDB connection configuration
-├── models/
-│   └── Feedback.js     # Feedback schema
-├── routes/
-│   └── feedbackRoutes.js  # API endpoints
-├── server.js           # Express server entry point
-├── package.json        # Dependencies
-└── README.md           # This file
+JNEC-Library-Official-Page-Mongodb/
+├── admin/              # Standalone Admin Panel React App (Port 5174)
+├── src/                # Main Library React App (Port 5173)
+├── public/             # Static Assets & Images
+├── models/             # Mongoose DB Schemas
+├── routes/             # Express API Endpoints
+├── uploads/            # PDFs uploaded from Admin Panel (Locally stored)
+├── server.js           # Shared Backend Router (Port 5000)
+└── package.json        # Dependencies
 ```
 
-## Screenshots
-*(Suggest adding screenshots of home, e-resources, gallery)*
-- Home: ![Home](public/images/newslide.jpg)
-- Gallery: Library photos available at `/gallery`
+## Database Features & APIs
 
-## Database
+The system features robust APIs connected natively to MongoDB to manage the website completely dynamically from the admin panel:
 
-### MongoDB Collections
+- **Marquee** (`/api/marquee`): Manages the top scrolling announcement ribbon.
+- **News** (`/api/news`): Controls the latest news feed sidebar snippet.
+- **Feedbacks** (`/api/feedback`): Captures library ratings securely for admin review.
+- **Ask a Librarian** (`/api/librarian`): A dual-sided query inbox for students resolving their answers.
+- **PDF Assets Manager**: Includes full CRUD operations utilizing `multer` native storage for:
+  - Books (`/api/books`)
+  - Question Papers (`/api/papers`)
+  - Subscribed Journals (`/api/journals`)
+- **Advisory & Staff** (`/api/committee`, `/api/staff`): Dynamic personnel lists mapped identically to the UI tables.
 
-#### Feedback Collection
-The feedback form stores user responses with the following fields:
-
-```javascript
-{
-  _id: ObjectId,
-  name: String,
-  department: String,
-  regNo: String,
-  section: String,
-  purpose: String,
-  frequency: String,
-  staffBehavior: String,
-  staffKnowledge: String,
-  staffEfficiency: String,
-  staffEffectiveness: String,
-  envCleanliness: String,
-  envLighting: String,
-  envEquipment: String,
-  opac: String,
-  internet: String,
-  circulation: String,
-  reference: String,
-  magazine: String,
-  readingHall: String,
-  sufficiency: String,
-  condition: String,
-  suggestions: String,
-  createdAt: Date
-}
-```
-
-### API Endpoints
-
-#### Save Feedback
-- **Endpoint**: `POST /api/feedback`
-- **Headers**: `Content-Type: application/json`
-- **Body**: Feedback object
-- **Response**: `{ success: true, message: "Feedback saved ✅" }`
-
-### MongoDB Compass
-View and manage data locally:
-1. Download [MongoDB Compass](https://www.mongodb.com/products/tools/compass)
-2. Connect to `mongodb://127.0.0.1:27017`
-3. Navigate to `jnec_library` database → `feedbacks` collection
+> **Important**: PDFs are stored locally in the `/uploads/` folder natively.
 
 ## Contributing
 1. Fork the repo.
@@ -177,11 +131,9 @@ View and manage data locally:
 ## Roadmap
 - ✅ MongoDB integration with feedback storage
 - ✅ Real-time feedback submission (POST API)
-- Add authentication/login for members
-- Deploy to production (Vercel/Netlify)
-- Add search for journals/question papers
-- Mobile app (React Native?)
-- Dashboard for librarians to view feedback analytics
+- ✅ Dashboard for librarians to view feedback analytics
+- ✅ Native Admin Panel for uploading dynamic assets
+- ✅ Complete API refactoring for dynamic UI layout updates
 
 ## License
 [MIT License](LICENSE)
