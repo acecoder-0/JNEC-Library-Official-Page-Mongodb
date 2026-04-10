@@ -1,6 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const TopMarquee = () => {
+  const [marqueeText, setMarqueeText] = useState('');
+
+  useEffect(() => {
+    const fetchMarquee = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/marquee');
+        const data = await res.json();
+        const combinedText = data.map(item => item.text).join(' &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp; ');
+        setMarqueeText(combinedText);
+      } catch (err) {
+        console.error('Error fetching marquee:', err);
+      }
+    };
+    fetchMarquee();
+  }, []);
+
   return (
     <div style={{
       backgroundColor: '#703c19',
@@ -8,8 +24,12 @@ const TopMarquee = () => {
       overflow: 'hidden',
       whiteSpace: 'nowrap'
     }}>
-      <marquee behavior="scroll" direction="left" scrollAmount="4" style={{color: '#FFF', marginTop: '5px', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold'}}>
-        *** <img src="/images/NewAlt.gif" alt="New" width="71" height="32" style={{verticalAlign: 'middle'}} /> List of Suggested Engineering Books of Indian Authors & Publishers- <a href="#" style={{color: '#FFF'}}>list-suggested-books-indian-authors-publishers.pdf</a> &nbsp; QUOTES : ONE BEST BOOK IS EQUAL TO HUNDRED GOOD FRIENDS BUT ONE GOOD FRIEND IS EQUAL TO A LIBRARY. - Dr. A.P.J ABDUL KALAM &nbsp; "LIBRARIES ARE THE FOUNDATIONS FOR LEARNING ." - MARK DAVIS &nbsp; "I HAVE ALWAYS IMAGINED THAT PARADISE WILL BE A KIND OF LIBRARY - JORGE LUIS BORGES (1899-1986)
+      <marquee behavior="scroll" direction="left" scrollAmount="5" style={{color: '#FFF', marginTop: '5px', marginBottom: '10px', fontSize: '15px', fontWeight: 'bold'}}>
+        {marqueeText ? (
+          <span dangerouslySetInnerHTML={{ __html: marqueeText }} />
+        ) : (
+          <span>*** Welcome to JNEC Library ***</span>
+        )}
       </marquee>
     </div>
   );

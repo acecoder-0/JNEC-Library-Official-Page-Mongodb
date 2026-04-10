@@ -1,0 +1,13 @@
+import mongoose from "mongoose";
+
+const paperSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  department: { type: String, required: true },
+  semester: { type: String, required: true },
+  subject: { type: String, required: true },
+  year: { type: String, required: true },
+  pdfPath: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+export default mongoose.model("Paper", paperSchema);

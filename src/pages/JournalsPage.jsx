@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import NavbarComp from "../components/NavbarComp";
@@ -17,19 +17,37 @@ const quickLinks = [
  
 ];
 
-const journalYears = [
-  { label: "Journals Subscribed for the Year - 2024", pdfLink: "Journals Subscribed for the Year 2024.pdf" },
-  { label: "Journals Subscribed for the Year - 2019", pdfLink: "Journals Subscribed for the Year 2019.pdf" },
-  { label: "Journals Subscribed for the Year - 2018", pdfLink: "Journals Subscribed for the Year 2018.pdf" },
-  { label: "Journals Subscribed for the Year - 2017", pdfLink: "Journals Subscribed for the Year 2017.pdf" },
-  { label: "Journals Subscribed for the Year - 2016", pdfLink: "Journals Subscribed for the Year 2016.pdf" },
-  { label: "Journals Subscribed for the Year - 2015", pdfLink: "Journals Subscribed for the Year 2015.pdf" },
-  { label: "Journals Subscribed for the Year - 2014", pdfLink: "Journals Subscribed for the Year 2014.pdf" },
-  { label: "Journals Subscribed for the Year - 2013", pdfLink: "Journals Subscribed for the Year 2013.pdf" },
-];
-
 export default function JournalsPage() {
   const [openIndex, setOpenIndex] = useState(0);
+  const [journalYears, setJournalYears] = useState([]);
+
+  useEffect(() => {
+    const fetchJournals = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/journals");
+        const data = await res.json();
+        const journalsData = data.map(j => ({
+          label: j.title,
+          pdfLink: `http://localhost:5000${j.pdfPath}`
+        }));
+        setJournalYears(journalsData);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchJournals();
+  }, []);
+
+  // Handler for downloading journals
+  const handleDownload = (fileUrl) => {
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.target = "_blank";
+    link.download = fileUrl.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <>
@@ -94,9 +112,23 @@ export default function JournalsPage() {
                     borderTop: "1px solid #ddd",
                   }}
                 >
-                  <a href={`/${item.pdfLink}`} target="_blank" rel="noreferrer" style={{ color: "#8B4513", fontSize: 12 }}>
-                    📄 {item.pdfLink}
-                  </a>
+                  <button
+                    onClick={() => handleDownload(item.pdfLink)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#8B4513",
+                      fontSize: 12,
+                      cursor: "pointer",
+                      textDecoration: "none",
+                      padding: 0,
+                      fontFamily: "inherit",
+                    }}
+                    onMouseEnter={(e) => (e.target.style.color = "#a0522d")}
+                    onMouseLeave={(e) => (e.target.style.color = "#8B4513")}
+                  >
+                    📥 Download: {item.pdfLink.split('/').pop()}
+                  </button>
                 </div>
               )}
             </div>

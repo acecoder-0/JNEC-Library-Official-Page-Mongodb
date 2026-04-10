@@ -21,11 +21,23 @@ const AskLibrarianPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission
-    setStatus('Thank you! Your query has been submitted. Library staff will respond soon.');
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    try {
+      const res = await fetch("http://localhost:5000/api/librarian", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('Thank you! Your query has been submitted. Library staff will respond soon.');
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("Error submitting query. Please try again.");
+    }
   };
 
   const titleStyle = {

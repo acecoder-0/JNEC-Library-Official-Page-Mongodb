@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import NavbarComp from "../components/NavbarComp";
@@ -15,16 +15,27 @@ const quickLinks = [
   { name: 'Image Gallery', url: '/gallery' }
 ];
 
-const bookYears = [
-  { label: "New Arrival Books - 2024", pdfLink: "data_pdf/new-arrival-books-2024.pdf" },
-  { label: "New Arrival Books - 2023", pdfLink: "data_pdf/new-arrival-books-2023.pdf" },
-  { label: "New Arrival Books - 2022", pdfLink: "data_pdf/new-arrival-books-2022.pdf" },
-  { label: "New Arrival Books - 2021", pdfLink: "data_pdf/new-arrival-books-2021.pdf" },
-  { label: "Suggested Indian Authors", pdfLink: "data_pdf/list-suggested-books-indian-authors-publishers.pdf" },
-];
-
 export default function NewArrivalBooksPage() {
   const [openIndex, setOpenIndex] = useState(0);
+  const [bookYears, setBookYears] = useState([]);
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/books");
+        const data = await res.json();
+        // Since the backend items map easily to labels and pdfLinks
+        const booksData = data.map(b => ({
+          label: b.title,
+          pdfLink: `http://localhost:5000${b.pdfPath}`
+        }));
+        setBookYears(booksData);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchBooks();
+  }, []);
 
   return (
     <>
@@ -81,8 +92,8 @@ export default function NewArrivalBooksPage() {
                   background: "#f9f9f9",
                   borderTop: "1px solid #ddd",
                 }}>
-                  <a href={`/${item.pdfLink}`} target="_blank" rel="noreferrer" style={{ color: "#8B4513", fontSize: 12 }}>
-                    📄 {item.pdfLink}
+                  <a href={item.pdfLink} target="_blank" rel="noreferrer" style={{ color: "#8B4513", fontSize: 12 }}>
+                    📄 {item.pdfLink.split('/').pop()}
                   </a>
                 </div>
               )}

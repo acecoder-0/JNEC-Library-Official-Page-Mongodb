@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import NavbarComp from "../components/NavbarComp";
@@ -21,41 +20,35 @@ const quickLinks = [
 const QuestionPapersPage = () => {
   const [openIndex, setOpenIndex] = useState(0);
 
-  const departments = [
-    { name: 'Computer Engineering', papers: [
-      { semester: 'SE Sem I', subject: 'Data Structures', year: '2023', link: '#' },
-      { semester: 'SE Sem II', subject: 'Computer Networks', year: '2023', link: '#' },
-      { semester: 'TE Sem V', subject: 'Machine Learning', year: '2023', link: '#' },
-      { semester: 'TE Sem VI', subject: 'Cloud Computing', year: '2023', link: '#' },
-      { semester: 'BE Sem VII', subject: 'Big Data Analytics', year: '2023', link: '#' },
-    ] },
-    { name: 'Information Technology', papers: [
-      { semester: 'SE Sem I', subject: 'Database Management', year: '2023', link: '#' },
-      { semester: 'TE Sem V', subject: 'Web Technology', year: '2023', link: '#' },
-    ] },
-    { name: 'Mechanical Engineering', papers: [
-      { semester: 'SE Sem II', subject: 'Strength of Materials', year: '2023', link: '#' },
-      { semester: 'SE Sem III', subject: 'Heat Transfer', year: '2023', link: '#' },
-      { semester: 'TE Sem V', subject: 'Design of Machine Elements', year: '2023', link: '#' },
-      { semester: 'BE Sem VII', subject: 'CAD/CAM', year: '2023', link: '#' },
-    ] },
-    { name: 'Civil Engineering', papers: [
-      { semester: 'SE Sem I', subject: 'Surveying', year: '2023', link: '#' },
-      { semester: 'TE Sem VI', subject: 'Design of Steel Structures', year: '2023', link: '#' },
-      { semester: 'BE Sem VIII', subject: 'Project Management', year: '2023', link: '#' },
-    ] },
-    { name: 'Electronics & Telecommunication', papers: [
-      { semester: 'SE Sem III', subject: 'Digital Electronics', year: '2023', link: '#' },
-      { semester: 'TE Sem V', subject: 'VLSI Design', year: '2023', link: '#' },
-    ] },
-    { name: 'Electrical Engineering', papers: [
-      { semester: 'SE Sem II', subject: 'Electrical Machines', year: '2023', link: '#' },
-      { semester: 'BE Sem VII', subject: 'Power System', year: '2023', link: '#' },
-    ] },
-    { name: 'Chemical Engineering', papers: [
-      { semester: 'TE Sem VI', subject: 'Process Design', year: '2023', link: '#' },
-    ] },
-  ];
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    const fetchPapers = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/papers");
+        const data = await res.json();
+        
+        // Group by department
+        const grouped = data.reduce((acc, paper) => {
+          if (!acc[paper.department]) {
+            acc[paper.department] = { name: paper.department, papers: [] };
+          }
+          acc[paper.department].papers.push({
+            semester: paper.semester,
+            subject: paper.subject,
+            year: paper.year,
+            link: `http://localhost:5000${paper.pdfPath}`
+          });
+          return acc;
+        }, {});
+        
+        setDepartments(Object.values(grouped));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPapers();
+  }, []);
 
   const sectionStyle = {
     marginBottom: '2rem',
@@ -69,6 +62,16 @@ const QuestionPapersPage = () => {
     color: '#703c19',
     fontWeight: 'bold',
     textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+  };
+
+  const handleDownload = (fileUrl) => {
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.target = "_blank";
+    link.download = fileUrl.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -130,11 +133,10 @@ const QuestionPapersPage = () => {
                           <td>
                             <Button 
                               variant="outline-primary" 
-                              href={paper.link} 
+                              onClick={() => handleDownload(paper.link)}
                               size="sm"
-                              target="_blank"
                             >
-                              PDF
+                              📥 Download PDF
                             </Button>
                           </td>
                         </tr>

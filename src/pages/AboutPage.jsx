@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import NavbarComp from "../components/NavbarComp";
@@ -9,15 +10,32 @@ const workingHours = [
   { id: 3, days: "PL & During Examination", timings: "24 hrs (Sunday - Saturday)" },
 ];
 
-const advisoryMembers = [
-  { id: 1, name: "Dr. H. H. Shinde", department: "Principal", designation: "Chairman" },
-  { id: 2, name: "Mr. S. G. Nagaroje", department: "Mechanical", designation: "Member" },
-  { id: 3, name: "Mr. U.G. Jadhav", department: "Civil", designation: "Member" },
-  { id: 4, name: "Dr. K. W. Gaikwad", department: "Chemical", designation: "Member" },
-  { id: 5, name: "Mr. A.A. Mahadik", department: "IT", designation: "Member" },
-  { id: 6, name: "Mr. V. S. Hanmante", department: "CSE", designation: "Member" },
-  { id: 7, name: "Ms. B. A. Patil", department: "EEP", designation: "Member" },
-];
+export default function AboutPage() {
+  const [advisoryMembers, setAdvisoryMembers] = useState([]);
+  const [libraryStaff, setLibraryStaff] = useState([]);
+
+  useEffect(() => {
+    const fetchCommittee = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/committee");
+        const data = await res.json();
+        setAdvisoryMembers(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    const fetchStaff = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/staff");
+        const data = await res.json();
+        setLibraryStaff(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCommittee();
+    fetchStaff();
+  }, []);
 
 const quickLinks = [
    { name: 'Open Education Resource', url: '/e-resources' },
@@ -47,8 +65,6 @@ const tdStyle = {
   fontSize: "12px",
   color: "#222",
 };
-
-export default function AboutPage() {
   return (
     <>
       <Header />
@@ -229,12 +245,48 @@ export default function AboutPage() {
               </tr>
             </thead>
             <tbody>
-              {advisoryMembers.map((m) => (
-                <tr key={m.id} style={{ background: "#fff" }}>
-                  <td style={{ ...tdStyle, textAlign: "center" }}>{m.id}.</td>
+              {advisoryMembers.map((m, index) => (
+                <tr key={m._id} style={{ background: "#fff" }}>
+                  <td style={{ ...tdStyle, textAlign: "center" }}>{index + 1}.</td>
                   <td style={tdStyle}>{m.name}</td>
                   <td style={{ ...tdStyle, textAlign: "center" }}>{m.department}</td>
                   <td style={{ ...tdStyle, textAlign: "center" }}>{m.designation}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Library Staff Profile */}
+          <div
+            style={{
+              fontWeight: "bold",
+              textDecoration: "underline",
+              marginBottom: 8,
+              color: "#000",
+              fontSize: 13,
+              marginTop: 24,
+            }}
+          >
+            Library Staff profile
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "#f1f1f1" }}>
+                <th style={thStyle}>Sr. No</th>
+                <th style={thStyle}>Name of staff</th>
+                <th style={thStyle}>Qualification</th>
+                <th style={thStyle}>Designation</th>
+                <th style={thStyle}>Section/Work</th>
+              </tr>
+            </thead>
+            <tbody>
+              {libraryStaff.map((staff, index) => (
+                <tr key={staff._id} style={{ background: "#fff" }}>
+                  <td style={{ ...tdStyle, textAlign: "center" }}>{String(index + 1).padStart(2, '0')}</td>
+                  <td style={tdStyle}>{staff.name}</td>
+                  <td style={tdStyle}>{staff.qualification}</td>
+                  <td style={tdStyle}>{staff.designation}</td>
+                  <td style={tdStyle}>{staff.section}</td>
                 </tr>
               ))}
             </tbody>
