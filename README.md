@@ -34,29 +34,56 @@ This is the official web application for the **Central Library of Jawaharlal Neh
 | **Contact** | Library address, contact details, map | **`/contact`** |
 
 ## Tech Stack
-- **Frontend**: React 19+, React Router 7+
-- **Build Tool**: Vite 8.0
-- **UI**: Bootstrap 5.3+, React Bootstrap, Bootstrap Icons, React Icons
+- **Frontend**: React 19+, React Router 7+, Vite 8.0, Bootstrap 5.3+
+- **Backend**: Node.js, Express 4.18+
+- **Database**: MongoDB + Mongoose 8.0+
+- **UI**: React Bootstrap, Bootstrap Icons, React Icons
+- **CORS**: Enabled for frontend-backend communication
 - **Linting**: ESLint 9+
 - **Styling**: Custom CSS (App.css, library-layout.css)
+
+## Architecture
+```
+React Frontend (Vite)
+       ↓
+Express.js API (Node.js)
+       ↓
+MongoDB (Database)
+```
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js (v18+)
+- MongoDB (local or MongoDB Atlas cloud)
 
 ### Installation
 ```bash
-git clone <https://github.com/saiprasadzampalwad/LIBRARY-JNEC-REACT/edit/main/README.md>
-cd library-jnec-react
+git clone https://github.com/saiprasadzampalwad/LIBRARY-JNEC-REACT
+cd LIBRARY-JNEC-REACT
 npm install
 ```
 
-### Development
+### Backend Setup
+1. **Start MongoDB**: Ensure MongoDB is running on `mongodb://127.0.0.1:27017`
+   - Or update connection string in `config/mongo.js` for MongoDB Atlas
+
+2. **Run Backend Server** (Terminal 1):
+```bash
+node server.js
+```
+Output: `Server running on port 5000 🚀`
+
+### Frontend Development (Terminal 2)
 ```bash
 npm run dev
 ```
 Opens at `http://localhost:5173`
+
+### Testing Feedback Form
+1. Open `http://localhost:5173/feedback`
+2. Fill and submit the form
+3. Check MongoDB Compass to verify data in `jnec_library.feedbacks` collection
 
 ### Build for Production
 ```bash
@@ -64,26 +91,81 @@ npm run build
 npm run preview
 ```
 
-### Lint
-```bash
-npm run lint
-```
-
 ## Project Structure
 ```
-src/
-├── components/  # Header, Footer, NavbarComp, Sidebar, Slider, TopMarquee, MainContent
-├── pages/       # AboutPage, EResourcesPage, FAQPage, FeedbackPage, etc.
-├── App.jsx      # Routing & Layout
-├── main.jsx     # Entry point
-└── App.css      # Global styles
-public/          # Images (logos, gallery photos)
+LIBRARY-JNEC-REACT/
+├── src/
+│   ├── components/     # Header, Footer, NavbarComp, Sidebar, Slider, etc.
+│   ├── pages/          # AboutPage, EResourcesPage, FAQPage, FeedbackPage, etc.
+│   ├── App.jsx         # Routing & Layout
+│   ├── main.jsx        # Entry point
+│   └── App.css         # Global styles
+├── public/             # Images (logos, gallery photos)
+├── config/
+│   └── mongo.js        # MongoDB connection configuration
+├── models/
+│   └── Feedback.js     # Feedback schema
+├── routes/
+│   └── feedbackRoutes.js  # API endpoints
+├── server.js           # Express server entry point
+├── package.json        # Dependencies
+└── README.md           # This file
 ```
 
 ## Screenshots
 *(Suggest adding screenshots of home, e-resources, gallery)*
 - Home: ![Home](public/images/newslide.jpg)
 - Gallery: Library photos available at `/gallery`
+
+## Database
+
+### MongoDB Collections
+
+#### Feedback Collection
+The feedback form stores user responses with the following fields:
+
+```javascript
+{
+  _id: ObjectId,
+  name: String,
+  department: String,
+  regNo: String,
+  section: String,
+  purpose: String,
+  frequency: String,
+  staffBehavior: String,
+  staffKnowledge: String,
+  staffEfficiency: String,
+  staffEffectiveness: String,
+  envCleanliness: String,
+  envLighting: String,
+  envEquipment: String,
+  opac: String,
+  internet: String,
+  circulation: String,
+  reference: String,
+  magazine: String,
+  readingHall: String,
+  sufficiency: String,
+  condition: String,
+  suggestions: String,
+  createdAt: Date
+}
+```
+
+### API Endpoints
+
+#### Save Feedback
+- **Endpoint**: `POST /api/feedback`
+- **Headers**: `Content-Type: application/json`
+- **Body**: Feedback object
+- **Response**: `{ success: true, message: "Feedback saved ✅" }`
+
+### MongoDB Compass
+View and manage data locally:
+1. Download [MongoDB Compass](https://www.mongodb.com/products/tools/compass)
+2. Connect to `mongodb://127.0.0.1:27017`
+3. Navigate to `jnec_library` database → `feedbacks` collection
 
 ## Contributing
 1. Fork the repo.
@@ -93,11 +175,13 @@ public/          # Images (logos, gallery photos)
 5. Open a Pull Request.
 
 ## Roadmap
-- Add authentication/login for members.
-- Integrate real-time feedback submission.
-- Deploy to production (Vercel/Netlify).
-- Add search for journals/question papers.
-- Mobile app (React Native?).
+- ✅ MongoDB integration with feedback storage
+- ✅ Real-time feedback submission (POST API)
+- Add authentication/login for members
+- Deploy to production (Vercel/Netlify)
+- Add search for journals/question papers
+- Mobile app (React Native?)
+- Dashboard for librarians to view feedback analytics
 
 ## License
 [MIT License](LICENSE)
